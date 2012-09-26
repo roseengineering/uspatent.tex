@@ -1,0 +1,425 @@
+% -*- tex -*-
+% uspatent.tex version 1.0 9/26/2012 gmagiros@gmail.com
+%
+% TeX macros for writing a United States Patent Application.
+% Copyright (c) 2012 George Magiros
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% macros for setting the font size to 12 points
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% roman 
+\font\twelverm   =cmr12    % twelve point roman
+\font\ninerm     =cmr9     % nine point roman
+\font\sevenrm    =cmr7     % seven point roman
+
+% math italics
+\font\twelvemi   =cmmi12   % twelve point math italics
+\font\ninemi     =cmmi9    % nine point math italics
+\font\sevenmi    =cmmi7    % nine point math italics
+
+% math extensions
+\font\twelveex   =cmex10 at 12pt  % twelve point math extension
+\font\nineex     =cmex9    % nine point math extension
+\font\sevenex    =cmex7    % seven point math extension
+
+% math symbols
+\font\twelvesy   =cmsy10 at 12pt  % twelve point math symbol
+\font\ninesy     =cmsy9    % nine point math symbol
+\font\sevensy    =cmsy7    % nine point math symbol
+
+% italics, slant, typewriter
+\font\twelveit   =cmti12   % twelve point italics
+\font\twelvesl   =cmsl12   % twelve point slant
+\font\twelvett   =cmtt12   % twelve point typewriter text
+
+% bold
+\font\twelvebf   =cmbx12   % twelve point bold
+\font\ninebf     =cmbx9    % nine point bold
+\font\sevenbf    =cmbx7    % seven point bold
+
+% set font size to 12 points
+\def\twelvepoints{
+  \def\rm{\fam0\twelverm}
+  \normalbaselineskip=14.4pt
+  \textfont0=\twelverm \scriptfont0=\ninerm \scriptscriptfont0=\sevenrm
+  \textfont1=\twelvemi \scriptfont1=\ninemi \scriptscriptfont1=\sevenmi
+  \textfont2=\twelvesy \scriptfont2=\ninesy \scriptscriptfont2=\sevensy
+  \textfont3=\twelveex \scriptfont3=\nineex \scriptscriptfont3=\sevenex
+  \textfont\itfam=\twelveit  \def\it{\fam\itfam\twelveit}
+  \textfont\slfam=\twelvesl  \def\sl{\fam\slfam\twelvesl}
+  \textfont\ttfam=\twelvett  \def\tt{\fam\ttfam\twelvett}
+  \textfont\bffam=\twelvebf  \def\bf{\fam\bffam\twelvebf}
+  \scriptfont\bffam=\ninebf  \scriptscriptfont\bffam=\sevenbf
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% private utility macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% dynamically creates a macro
+\def\makedef#1#2{%
+  \expandafter\xdef
+  \csname #1%
+  \endcsname{#2}%
+}
+
+% turns on centering
+\def\center{
+  \everypar={}
+  \parindent 0pt
+  \rightskip 0pt plus 1fill
+  \leftskip 0pt plus 1fill
+  \hyphenpenalty=200
+}
+
+% centers text for a heading
+\def\centered#1{{                       
+  \center
+  #1
+  \par
+  \vskip\normalbaselineskip
+}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% page numbering macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% set the page numbers in the footline
+% ------------------------------------
+% 37 CFR 1.52 (b) (5) Other than in a reissue application or reexamination 
+% proceeding, the pages of the specification including claims and abstract 
+% must be numbered consecutively, starting with 1, the numbers being 
+% centrally located above or preferably below, the text. 
+\footline={%
+  \vbox{%
+    \rm\everypar={}\parindent 0pt%
+    \vskip 45pt%
+    \hbox to \hsize{\docketno\hfil- \the\pageno\ -\hfil\today}
+}}
+
+% initially set the values of \today and \docketno to blank
+\def\today{}
+\def\docketno{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% current date and docket number watermark macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \timestamp use to place date and time information in the footline
+\def\timestamp{
+  \def\today{%
+  \ifcase\month
+  \or Jan\or Feb\or Mar%
+  \or Apr\or May\or June%
+  \or July\or Aug\or Sep%
+  \or Oct\or Nov\or Dec%
+  \fi
+  \ \number\day, 
+  \number\year\ 
+  {%
+    \count20=\time
+    \count22=\count20
+    \divide \count20 by 60
+    \count21=\count20
+    \multiply\count21 by -60
+    \advance\count22 by \count21
+    \ifnum\count20<10 0\fi
+    \the\count20:%
+    \ifnum\count22<10 0\fi
+    \the\count22
+  }%
+}}
+
+% \docketnumber{<docket-number>} places the docket number in the footline
+\def\docketnumber#1{
+  \makedef{docketno}{#1}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% general macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\nl{\hfil\break}    % starts a new line
+\def\ff{\vfill\eject}   % starts a new page
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% specification macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% section heading macro
+% ---------------------
+% 37 CFR 177 (c) The text of the specification sections [...]
+% should be preceded by a section heading in uppercase and 
+% without underlining or bold type. 
+\def\heading#1{
+  \everypar={\parnumbering}  % turns on paragraph numbering
+  {
+   \everypar={}
+   \parindent 0pt
+   \vskip 2\normalbaselineskip
+   \baselineskip=\normalbaselineskip
+   #1
+   \par
+}}
+
+% contains the current paragraph number
+\newcount\parno
+
+% specification paragraph numbering macro
+% --------------------------------------- 
+% 37 CFR 1.52 (b) (6) Other than in a reissue application or
+% reexamination proceeding, the paragraphs of the specification, other
+% than in the claims or abstract, may be numbered at the time the
+% application is filed, and should be individually and consecutively
+% numbered using Arabic numerals, so as to unambiguously identify each
+% paragraph. The number should consist of at least four numerals
+% enclosed in square brackets, including leading zeros (e.g.,
+% [0001]). The numbers and enclosing brackets should appear to the
+% right of the left margin as the first item in each paragraph, before
+% the first word of the paragraph, and should be highlighted in
+% bold. A gap, equivalent to approximately four spaces, should follow
+% the number. [...]
+\def\parnumbering{%
+  \advance\parno by 1
+  \llap{\hbox to \parindent{\bf[%
+    \ifnum\parno<1000 0\fi
+    \ifnum\parno<100 0\fi
+    \ifnum\parno<10 0\fi
+    \the\parno
+  ]\hss}}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% specification section headings (37 CFR 177 (b))
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% (1) Title of the invention [...] (unless included in the 
+% application data sheet)
+\def\title#1{
+  \centered{#1}
+}
+
+% (1) Title of the invention which may be accompanied by an 
+% introductory portion stating the name, citizenship, and residence 
+% of the applicant (unless included in the application data sheet)
+\def\inventor#1{
+  \centered{
+  by\nl#1
+}}
+
+\def\twoinventors#1#2{              % two inventors
+  \centered{
+  by\nl#1\nl and\nl#2
+}}
+
+\def\threeinventors#1#2#3{          % three inventors
+  \centered{
+  by\nl#1\nl#2\nl and\nl#3
+}}
+
+\def\fourinventors#1#2#3#4{         % four inventors
+  \centered{
+  by\nl#1\nl#2\nl#3\nl and\nl#4
+}}
+
+% (2) Cross-reference to related applications (unless included in the
+% applicaiton data sheet)
+\def\crossreference{
+  \heading{
+  CROSS-REFERENCE TO RELATED APPLICATIONS
+}}
+
+% (3) Statement regarding federally sponsored research or development
+\def\federalresearch{
+  \heading{
+  STATEMENT REGARDING FEDERALLY SPONSORED
+  RESEARCH OR DEVELOPMENT
+}}
+
+% (4) The names of the parties to a joint research agreement. 
+\def\jointresearch{
+  \heading{
+  THE NAMES OF THE PARTIES TO A
+  JOINT RESEARCH AGREEMENT
+}}
+
+% (5) Reference to a ``Sequence Listing,'' a table, or a computer
+% program listing appendix submitted on a compact disc and an
+% incorporation-by-reference of the material on the compact disc.
+\def\compactdisc{
+  \heading{
+  INCORPORATION-BY-REFERENCE OF MATERIAL
+  SUBMITTED ON A COMPACT DISC
+}}
+
+% (6) Background of the invention. 
+\def\background{
+  \heading{
+  BACKGROUND OF THE INVENTION
+}}
+
+% (7) Brief summary of the invention. 
+\def\summary{
+  \heading{
+  BRIEF SUMMARY OF THE INVENTION
+}}
+
+% (8) Brief description of the several views of the drawing. 
+\def\drawings{
+  \heading{
+  BRIEF DESCRIPTION OF THE SEVERAL
+  VIEWS OF THE DRAWINGS
+}}
+
+% (9) Detailed description of the invention. 
+\def\description{
+  \heading{
+  DETAILED DESCRIPTION OF THE INVENTION
+}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 37 CFR 177 (b) (10) A claim or claims
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% begin claims
+% ------------
+% 37 CFR 1.52 (b) (3) The claim or claims must commence on a 
+% separate physical sheet or electronic page.
+\def\claims{
+  \ff                           % start claims on a new page
+  \heading{CLAIMS}  
+  \heading{What Is Claimed Is:}  
+  \everypar={\claimnumbering}   % each paragraph starts a claim
+  \parindent 40pt
+}
+
+% use to indicate a new claim element
+\def\el{
+  \nl
+  \hbox to \parindent{}
+}     
+
+% contains the current claim number
+\newcount\claimno                     
+
+% claim section paragraph numbering macro
+\def\claimnumbering{%
+  \advance\claimno by 1
+  \hbox to 35pt{\the\claimno.\hss}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 37 CFR 177 (b) (11) Abstract of the disclosure. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% begin abstract
+% --------------
+% 37 CFR 1.52 (b) (4) The abstract must commence on a separate
+% physical sheet or electronic page [...]
+\def\abstract{     
+  \ff                           % start abstract on a new page
+  \heading{ABSTRACT OF THE DISCLOSURE}
+  \everypar={}                  % end paragraph numbering
+  \parindent 40pt
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% part referencing and claim labeling macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% macro for referencing a part name
+% ---------------------------------
+% eg. \ref{gogglecombination}{goggle combination 1} sets
+% \googlecombination to print ``google combination 1''
+\def\ref#1#2{%
+  \makedef{#1}{#2}%
+}
+
+% macro for referencing a claim number
+% ------------------------------------
+% Creates a label for a claim which can be used in subsequent claims 
+% to reference the former's claim number.  An example use is:
+% ``\label{mainclaim} A mask and goggle device which comprises: ...
+% The device of \mainclaim which ...''
+\def\label#1{
+  \count1=\claimno
+  \advance\count1 by 1
+  \makedef{#1}{claim \the\count1}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% style macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% set paper size
+% --------------
+% 37 CFR 1.52 (a) (1) (ii) Either 21.0 cm by 29.7 cm (DIN size A4) or
+% 21.6 cm by 27.9 cm (8 1/2 by 11 inches)
+\pdfpagewidth 8.5in
+\pdfpageheight 11in
+
+% set font size
+% -------------
+% 37 CFR 1.52 (b) (2) (ii) Text written in a nonscript type font
+% (e.g., Arial, Times Roman, or Courier, preferably a font size of 12)
+% lettering style having capital letters which should be at least
+% 0.3175 cm. (0.125 inch) high, but may be no smaller than 0.21 cm.
+% (0.08 inch) high (e.g., a font size of 6);
+\twelvepoints
+\rm
+
+% set line spacing
+% ----------------
+% 37 CFR 1.52 (b) (2) The specification (including the abstract and 
+% claims) [...] must have: (i) Lines that are 1 1/2 or double spaced;
+\baselineskip=2\normalbaselineskip            % 2 line spacing
+\parskip=.35\baselineskip                     % paragraph vertical spacing
+\vbadness=10000                               % avoid underfull page errors
+
+% set margins
+% -----------
+% 37 CFR 1.52 (a) (1) (ii) [...] with each sheet including a top
+% margin of at least 2.0 cm (3/4 inch), a left side margin of at least
+% 2.5 cm (1 inch), a right side margin of at least 2.0 cm (3/4 inch),
+% and a bottom margin of at least 2.0 cm (3/4 inch);
+\hoffset=.25in                                % use a 1.25 inch margin 
+\hsize=6in                                    % the text width is then 6 inches
+
+% set ragged right output
+% -----------------------
+% 37 CFR 1.52 (b) (2) (iii) Only a single column of text.
+\rightskip=0pt plus 30mm
+\spaceskip=1\fontdimen2\font
+
+% set pdf metadata
+\pdfinfo
+  { /Title (Patent Application) }
+
+% set the indent for paragraph numbering
+\parindent 14.5\fontdimen2\font
+
